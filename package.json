@@ -13,6 +13,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "inquirer": "^6.2.0",
+    "axios": "^0.18.0"
+  },
   "bugs": {
     "url": "https://github.com/bssheetal/liri-node-app/issues"
   },
