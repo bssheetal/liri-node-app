@@ -4,15 +4,10 @@ var inquirer=require("inquirer");
 var axios=require("axios");
 if(process.argv[2]==="movie-this")
 {
-    var movie="";
-    try
-    {
-       getmovieinfo(movie);
-    }
-catch(ex)
-{
-    callback(new Error('something bad happened'));
-}
+    var movie="";  
+    getmovieinfo(movie);
+    
+
 }
 
 function getmovieinfo(movie)
@@ -20,19 +15,25 @@ function getmovieinfo(movie)
 
 for(var i=3;i<process.argv.length;i++)
 {
-    if(process.argv[2]==="movie-this")
-    {
+    
       movie+=process.argv[i]+" ";
-    }
-
 }
+
+if(!movie)
+(
+    movie="Mr.Nobody"
+)
 
 var queryurl="http://www.omdbapi.com/?t="+movie+"&y=&plot=short&apikey=trilogy";
     axios.get(queryurl).then(
         function(response)
         {
+            if(response.data.Error)
+           {
+               return console.log("Enter valid movie name");
+           }
            console.log(queryurl);
-           console.log(JSON.stringify(response.data));
+           console.log(JSON.stringify(response.data));          
            console.log("Title of the movie: "+response.data.Title);
            console.log("Year the movie came out: "+response.data.Year);
            console.log("IMDB Rating of the movie: "+response.data.Ratings[0].Value);
