@@ -37,6 +37,10 @@ function doAsIsay(whattodo, searchinfo) {
         getrandominfo();
     }
 
+    else
+    {
+        console.log("Enter either movie-this for movie info , concert-this for concert info,spotify-this for music info or do-what-it-says for something random");
+    }
 }
 function getmovieinfo(searchinfo) {
 
