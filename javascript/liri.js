@@ -4,10 +4,7 @@ var inquirer = require("inquirer");
 var moment = require('moment');
 var Spotify = require('node-spotify-api');
 var keys=require("./keys.js");
-// var spotify = new Spotify({
-//     id: "cefe261bb27d42109bcc1701f4ddd236",
-//     secret: "7482b81937724aa98b91a59cde8faed1"
-//   });
+console.log(keys.spotify);
 var spotify = new Spotify(keys.spotify);
 if (process.argv[2] === "movie-this") {
     var movie = "";
