@@ -3,7 +3,8 @@ var axios = require("axios");
 var inquirer = require("inquirer");
 var moment = require('moment');
 var Spotify = require('node-spotify-api');
-var keys=require("./keys.js");
+var keys = require("./keys.js");
+var fs=require("fs");
 console.log(keys.spotify);
 var spotify = new Spotify(keys.spotify);
 if (process.argv[2] === "movie-this") {
@@ -17,14 +18,12 @@ if (process.argv[2] === "concert-this") {
     getconcertinfo();
 }
 
-if(process.argv[2]==="spotify-this-song")
-{
-  
-  getsonginfo();
+if (process.argv[2] === "spotify-this-song") {
+
+    getsonginfo();
 }
 
-if(process.argv[2]==="do-what-it-says")
-{
+if (process.argv[2] === "do-what-it-says") {
 
 }
 function getmovieinfo() {
@@ -71,7 +70,7 @@ function getconcertinfo() {
         if (response.data.Error) {
             return console.log("Enter valid movie name");
         }
-              
+
         console.log("Upcoming concerts for:" + artist + ":")
         for (var i = 0; i < response.data.length; i++) {
             console.log(response.data[i].venue.city + "," + response.data[i].venue.region + " " + "at" + " " + response.data[i].venue.name + " " + moment(response.data[i].datetime).format('L'));
@@ -81,48 +80,51 @@ function getconcertinfo() {
 
 }
 
-function getsonginfo()
-{   
+function getsonginfo() {
     inquirer.prompt([
-         {
-             type:"input",
-             message:"Which song?",
-             name:"songTitle"
-         }
+        {
+            type: "input",
+            message: "Which song?",
+            name: "songTitle"
+        }
 
-    ]).then(function(inquirerresponse)
-    {
-        if(!inquirerresponse.songTitle)
-        {
-            inquirerresponse.songTitle="The sign ace of base";
+    ]).then(function (inquirerresponse) {
+        if (!inquirerresponse.songTitle) {
+            inquirerresponse.songTitle = "California Girls";
             searchspotify();
         }
-        else 
-        {
+        else {
             searchspotify();
         }
-       
-        function searchspotify()
-        {
+
+        function searchspotify() {
             spotify.search(
                 {
-                   
-                    type:'track',
-                    query:inquirerresponse.songTitle
-                 },function(err,response)
-                    
-                {
-                 
-                  //console.log(songTitle);
-                   console.log(response.tracks.items[0].album.artists[0]);
-                   
-             
+
+                    type: 'track',
+                    query: inquirerresponse.songTitle
+                }, function (err, response) {
+                    var artists = response.tracks.items[0].artists;
+                    var artistnames = [];
+
+                    for (var i = 0; i < artists.length; i++) {
+
+                        artistnames.push(artists[i].name);
+                    }
+
+                    var artists = "Artists :"+artistnames.join(",")+"\n";
+                    var songname="Name of the song:"+response.tracks.items[0].name+"\n";
+                    var previewlink="Preview link of song:"+response.tracks.items[0].preview_url+"\n";
+                    var albumname="Album name:"+response.tracks.items[0].album.name+"\n";
+                    var divider="------------------------------------------------------------------"+"\n";
+                    fs.appendFileSync("log.txt", artists+songname+previewlink+albumname+divider);
+                    //console.log("Artists:" + artists);
                 });
-    
+
         }
     });
-    
-   
-   
+
+
+
 
 }
