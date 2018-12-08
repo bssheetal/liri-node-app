@@ -19,8 +19,13 @@ if (process.argv[2] === "concert-this") {
 
 if(process.argv[2]==="spotify-this-song")
 {
-    
+  
   getsonginfo();
+}
+
+if(process.argv[2]==="do-what-it-says")
+{
+
 }
 function getmovieinfo() {
 
@@ -77,17 +82,47 @@ function getconcertinfo() {
 }
 
 function getsonginfo()
-{
-   spotify.search({
-       type:'track',
-       query:'All the Small Things'
-    })
-       .then(function(response)
-   {
-      console.log(response.tracks.items[0].album.artists[0]);
-      
+{   
+    inquirer.prompt([
+         {
+             type:"input",
+             message:"Which song?",
+             name:"songTitle"
+         }
 
-   });
+    ]).then(function(inquirerresponse)
+    {
+        if(!inquirerresponse.songTitle)
+        {
+            inquirerresponse.songTitle="The sign ace of base";
+            searchspotify();
+        }
+        else 
+        {
+            searchspotify();
+        }
+       
+        function searchspotify()
+        {
+            spotify.search(
+                {
+                   
+                    type:'track',
+                    query:inquirerresponse.songTitle
+                 },function(err,response)
+                    
+                {
+                 
+                  //console.log(songTitle);
+                   console.log(response.tracks.items[0].album.artists[0]);
+                   
+             
+                });
+    
+        }
+    });
+    
+   
    
 
 }
