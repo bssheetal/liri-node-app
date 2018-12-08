@@ -1,6 +1,5 @@
 require("dotenv").config();
 var axios = require("axios");
-var inquirer = require("inquirer");
 var moment = require('moment');
 var Spotify = require('node-spotify-api');
 var keys = require("./keys.js");
@@ -9,6 +8,7 @@ var spotify = new Spotify(keys.spotify);
 
 var whattodo = process.argv[2];
 var searchinfo = process.argv[3];
+var divider = "\n------------------------------------------------------------\n\n";
 doAsIsay(whattodo, searchinfo);
 function doAsIsay(whattodo, searchinfo) {
     if (whattodo === "movie-this") {
@@ -56,16 +56,21 @@ function getmovieinfo(searchinfo) {
             if (response.data.Error) {
                 return console.log("Enter valid movie name");
             }
-            console.log(queryurl);
-            console.log(JSON.stringify(response.data));
-            console.log("Title of the movie: " + response.data.Title);
-            console.log("Year the movie came out: " + response.data.Year);
-            console.log("IMDB Rating of the movie: " + response.data.Ratings[0].Value);
-            console.log("Rotten Tomatoes Rating of the movie: " + response.data.Ratings[1].Value);
-            console.log("Country where the movie was produced: " + response.data.Country);
-            console.log("Language of the movie: " + response.data.Language);
-            console.log("Plot of the movie: " + response.data.Plot);
-            console.log("Actors in the movie: " + response.data.Actors);
+            console.log("Hurray!Check the log file for results");
+            var JSONData = response.data;
+
+            var showData = [
+                "Title of the movie: " + JSONData.Title,
+                "Year the movie came out: " + JSONData.Year,
+                "IMDB Rating of the movie: " + JSONData.Ratings[0].Value,
+                "Rotten Tomatoes Rating of the movie: " + JSONData.Ratings[1].Value,
+                "Country where the movie was produced: " + JSONData.Country,
+                "Language of the movie: " + JSONData.Language,
+                "Plot of the movie: " + JSONData.Plot,
+                "Actors in the movie: " + JSONData.Actors
+            ].join("\n\n")
+
+            fs.appendFileSync("log.txt", showData + divider);
         }
 
     )
@@ -83,17 +88,18 @@ function getconcertinfo(searchinfo) {
             return console.log("Enter valid artist name");
         }
         else {
-            console.log("Upcoming concerts for:" + searchinfo + ":")
+            fs.appendFileSync("log.txt", "Upcoming concerts for" + " " + searchinfo + ":" + "\n");
+            //var jsonDataArr=[];
             for (var i = 0; i < response.data.length; i++) {
-                console.log(response.data[i].venue.city + "," + response.data[i].venue.region + " " + "at" + " " + response.data[i].venue.name + " " + moment(response.data[i].datetime).format('L'));
-
+                //console.log(response.data[i].venue.city + "," + response.data[i].venue.region + " " + "at" + " " + response.data[i].venue.name + " " + moment(response.data[i].datetime).format('L'));
+                
+                fs.appendFileSync("log.txt", response.data[i].venue.city + "," + response.data[i].venue.region + " " + "at" + " " + response.data[i].venue.name + " " + moment(response.data[i].datetime).format('L') + "\n\n");
             }
+            console.log("Hurray!Check the log file for results");
+            fs.appendFileSync("log.txt", divider);
+
         }
     });
-
-
-
-
 }
 
 function getspecificsonginfo() {
@@ -118,9 +124,8 @@ function getspecificsonginfo() {
             var songname = "Name of the song:" + response.tracks.items[0].name + "\n";
             var previewlink = "Preview link of song:" + response.tracks.items[0].preview_url + "\n";
             var albumname = "Album name:" + response.tracks.items[0].album.name + "\n";
-            var divider = "------------------------------------------------------------------" + "\n";
             fs.appendFileSync("log.txt", artists + songname + previewlink + albumname + divider);
-            //console.log("Artists:" + artists);
+           
         });
 
 
@@ -149,9 +154,8 @@ function getsonginfo(searchinfo) {
             var songname = "Name of the song:" + response.tracks.items[0].name + "\n";
             var previewlink = "Preview link of song:" + response.tracks.items[0].preview_url + "\n";
             var albumname = "Album name:" + response.tracks.items[0].album.name + "\n";
-            var divider = "------------------------------------------------------------------" + "\n";
             fs.appendFileSync("log.txt", artists + songname + previewlink + albumname + divider);
-            //console.log("Artists:" + artists);
+            
         });
 
 
