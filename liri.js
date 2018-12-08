@@ -1,7 +1,9 @@
 require("dotenv").config();
+// NPM Packages 
 var axios = require("axios");
 var moment = require('moment');
 var Spotify = require('node-spotify-api');
+// API keys
 var keys = require("./keys.js");
 var fs = require("fs");
 var spotify = new Spotify(keys.spotify);
