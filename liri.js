@@ -4,41 +4,53 @@ var inquirer = require("inquirer");
 var moment = require('moment');
 var Spotify = require('node-spotify-api');
 var keys = require("./keys.js");
-var fs=require("fs");
-console.log(keys.spotify);
+var fs = require("fs");
 var spotify = new Spotify(keys.spotify);
-if (process.argv[2] === "movie-this") {
-    var movie = "";
-    getmovieinfo();
+
+var whattodo = process.argv[2];
+var searchinfo = process.argv[3];
+doAsIsay(whattodo, searchinfo);
+function doAsIsay(whattodo, searchinfo) {
+    if (whattodo === "movie-this") {
+        var searchinfo = "";
+        getmovieinfo(searchinfo);
+
+    }
+
+    if (whattodo === "concert-this") {
+        var searchinfo = "";
+        getconcertinfo(searchinfo);
+    }
+
+    if (whattodo === "spotify-this-song") {
+
+        if (!searchinfo) {
+            getspecificsonginfo();
+        }
+
+        else
+            getsonginfo(searchinfo);
+    }
+
+    if (whattodo === "do-what-it-says") {
+
+        getrandominfo();
+    }
 
 }
-
-if (process.argv[2] === "concert-this") {
-    var artist = "";
-    getconcertinfo();
-}
-
-if (process.argv[2] === "spotify-this-song") {
-
-    getsonginfo();
-}
-
-if (process.argv[2] === "do-what-it-says") {
-
-}
-function getmovieinfo() {
+function getmovieinfo(searchinfo) {
 
     for (var i = 3; i < process.argv.length; i++) {
 
-        movie += process.argv[i] + " ";
+        searchinfo += process.argv[i] + " ";
     }
 
-    if (!movie)
+    if (!searchinfo)
         (
-            movie = "Mr.Nobody"
+            searchinfo = "Mr.Nobody"
         )
 
-    var queryurl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
+    var queryurl = "http://www.omdbapi.com/?t=" + searchinfo + "&y=&plot=short&apikey=trilogy";
     axios.get(queryurl).then(
         function (response) {
             if (response.data.Error) {
@@ -59,72 +71,102 @@ function getmovieinfo() {
     )
 };
 
-function getconcertinfo() {
+function getconcertinfo(searchinfo) {
 
     for (var i = 3; i < process.argv.length; i++) {
-        artist += process.argv[i];
+        searchinfo += process.argv[i];
     }
-    var queryurl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
+    var queryurl = "https://rest.bandsintown.com/artists/" + searchinfo + "/events?app_id=codingbootcamp";
 
-    axios.get(queryurl).then(function (response) {
-        if (response.data.Error) {
-            return console.log("Enter valid movie name");
+    axios.get(queryurl).then(function (response, err) {
+        if (err) {
+            return console.log("Enter valid artist name");
         }
+        else {
+            console.log("Upcoming concerts for:" + searchinfo + ":")
+            for (var i = 0; i < response.data.length; i++) {
+                console.log(response.data[i].venue.city + "," + response.data[i].venue.region + " " + "at" + " " + response.data[i].venue.name + " " + moment(response.data[i].datetime).format('L'));
 
-        console.log("Upcoming concerts for:" + artist + ":")
-        for (var i = 0; i < response.data.length; i++) {
-            console.log(response.data[i].venue.city + "," + response.data[i].venue.region + " " + "at" + " " + response.data[i].venue.name + " " + moment(response.data[i].datetime).format('L'));
-
+            }
         }
     });
+
+
+
 
 }
 
-function getsonginfo() {
-    inquirer.prompt([
+function getspecificsonginfo() {
+
+
+    spotify.search(
         {
-            type: "input",
-            message: "Which song?",
-            name: "songTitle"
+
+            type: 'track',
+            query: "California Girls"
+        }, function (err, response) {
+
+            var artists = response.tracks.items[0].artists;
+            var artistnames = [];
+
+            for (var i = 0; i < artists.length; i++) {
+
+                artistnames.push(artists[i].name);
+            }
+
+            var artists = "Artists :" + artistnames.join(",") + "\n";
+            var songname = "Name of the song:" + response.tracks.items[0].name + "\n";
+            var previewlink = "Preview link of song:" + response.tracks.items[0].preview_url + "\n";
+            var albumname = "Album name:" + response.tracks.items[0].album.name + "\n";
+            var divider = "------------------------------------------------------------------" + "\n";
+            fs.appendFileSync("log.txt", artists + songname + previewlink + albumname + divider);
+            //console.log("Artists:" + artists);
+        });
+
+
+
+
+}
+
+function getsonginfo(searchinfo) {
+
+    spotify.search(
+        {
+
+            type: 'track',
+            query: searchinfo
+        }, function (err, response) {
+
+            var artists = response.tracks.items[0].artists;
+            var artistnames = [];
+
+            for (var i = 0; i < artists.length; i++) {
+
+                artistnames.push(artists[i].name);
+            }
+
+            var artists = "Artists :" + artistnames.join(",") + "\n";
+            var songname = "Name of the song:" + response.tracks.items[0].name + "\n";
+            var previewlink = "Preview link of song:" + response.tracks.items[0].preview_url + "\n";
+            var albumname = "Album name:" + response.tracks.items[0].album.name + "\n";
+            var divider = "------------------------------------------------------------------" + "\n";
+            fs.appendFileSync("log.txt", artists + songname + previewlink + albumname + divider);
+            //console.log("Artists:" + artists);
+        });
+
+
+
+}
+function getrandominfo() {
+    fs.readFile("random.text", "utf8", function (error, data) {
+        if (error) {
+            return console.log(error);
         }
 
-    ]).then(function (inquirerresponse) {
-        if (!inquirerresponse.songTitle) {
-            inquirerresponse.songTitle = "California Girls";
-            searchspotify();
-        }
-        else {
-            searchspotify();
-        }
-
-        function searchspotify() {
-            spotify.search(
-                {
-
-                    type: 'track',
-                    query: inquirerresponse.songTitle
-                }, function (err, response) {
-                    var artists = response.tracks.items[0].artists;
-                    var artistnames = [];
-
-                    for (var i = 0; i < artists.length; i++) {
-
-                        artistnames.push(artists[i].name);
-                    }
-
-                    var artists = "Artists :"+artistnames.join(",")+"\n";
-                    var songname="Name of the song:"+response.tracks.items[0].name+"\n";
-                    var previewlink="Preview link of song:"+response.tracks.items[0].preview_url+"\n";
-                    var albumname="Album name:"+response.tracks.items[0].album.name+"\n";
-                    var divider="------------------------------------------------------------------"+"\n";
-                    fs.appendFileSync("log.txt", artists+songname+previewlink+albumname+divider);
-                    //console.log("Artists:" + artists);
-                });
-
-        }
+        var dataArr = data.split(",");
+        whattodo = dataArr[0];
+        searchinfo = dataArr[1];
+        console.log("Hurray!Check the log file for results");
+        doAsIsay(whattodo, searchinfo);
     });
-
-
-
-
 }
