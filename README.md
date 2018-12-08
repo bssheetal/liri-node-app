@@ -1,4 +1,5 @@
 Description
+
 LIRI is a _Language_ Interpretation and Recognition Interface. LIRI will be a command line node app that takes in parameters and gives you back data.
 
 Functionality
@@ -14,31 +15,36 @@ API's consumed
 * [Bands In Town API](http://www.artists.bandsintown.com/bandsintown-api)
 
 Packages Installed
+
 The package.json lists dependent node packages, but here's the info on which was installed
 
- * "axios"
+ * "axios":
   npm install axios
- * "dotenv"
+ * "dotenv":
   npm install dotenv
- *  "moment"
+ *  "moment":
  npm install moment
- *  "node-spotify-api"
+ *  "node-spotify-api":
  npm install node-spotify-api
 
 Commands to start this project running
 
-Get Movie Info
+Get Movie Info:
+
 Retrieves movie information for a movie:
 
 node liri.js movie-this "Star Wars"
 
-Get Concert Info
+Get Concert Info:
 
 Retrieves concert information for an artist:
+
 node liri.js concert-this John Legend
 
-Get Song Info
+Get Song Info:
+
 Retrieves song information for a track:
+
 node liri.js spotify-this-song  "Just The Way You Are"
 
 Demo Link:
